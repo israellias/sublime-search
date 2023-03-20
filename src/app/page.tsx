@@ -18,7 +18,7 @@ export default function Home() {
   const handleSearch = async (event: any) => {
     if (event.key === 'Enter' && searchTerm !== '') {
       setLoading(true)
-      fetch(`http://localhost:8000/api/v2/feed/search/?search=${searchTerm}`)
+      fetch(`${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?search=${searchTerm}`)
         .then((res) => res.json())
         .then((data) => {
           setData(data.results)

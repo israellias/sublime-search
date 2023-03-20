@@ -1,91 +1,124 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+"use client";
 
+import { Box, Container, Dialog, DialogContent, DialogContentText, FormControl, Grid, InputAdornment, InputLabel, OutlinedInput, Typography } from '@mui/material';
+import { JsonViewer } from '@textea/json-viewer';
+import { Inter } from 'next/font/google';
+import { useState } from 'react';
+import styles from './page.module.css';
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [data, setData] = useState([])
+  const [isLoading, setLoading] = useState(false)
+  const [openTokensModal, setOpenTokensModal] = useState(false);
+  const [fieldToken, setFieldToken] = useState(null);
+
+
+  const handleSearch = async (event: any) => {
+    if (event.key === 'Enter' && searchTerm !== '') {
+      setLoading(true)
+      fetch(`http://localhost:8000/api/v2/feed/search/?search=${searchTerm}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setData(data.results)
+          setLoading(false)
+        })
+    }
+  }
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+      <Container>
+        <Box sx={{ display: 'flex' }}>
+          <FormControl fullWidth sx={{ m: 1 }}>
+            <InputLabel htmlFor="outlined-adornment-amount">Buscar</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-amount"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              onKeyDown={handleSearch}
+              startAdornment={<InputAdornment position="start">&#707;</InputAdornment>}
+              label="Amount"
             />
-          </a>
-        </div>
-      </div>
+          </FormControl>
+        </Box>
+        <Box>
+          <Dialog
+            open={openTokensModal}
+            onClose={() => setOpenTokensModal(false)}
+            scroll='body'
+            maxWidth='md'
+            fullWidth
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <DialogContent dividers={false}>
+              <DialogContentText>
+                <div>
+                  <JsonViewer value={fieldToken} />
+                </div>
+              </DialogContentText>
+            </DialogContent>
+          </Dialog>
+          {isLoading ? <p>Loading...</p> : <></>}
+          {!data ? <p>No data...</p> : <></>}
+          {!isLoading && data &&
+            data.map((result: any) => (
+              <>
+                <Grid container m={2} spacing={2} key={result.uuid} >
+                  <Grid item xs={10}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                      <Box onClick={() => {
+                        setOpenTokensModal(true);
+                        setFieldToken(result.tokens['name'])
+                      }}>
+                        <Typography variant='h6'>{result.name}</Typography>
+                      </Box>
+                      <Box mx={2}></Box>
+                      <Typography variant='caption'><Box sx={{ textTransform: 'lowercase' }}>
+                        {result.tagline}</Box></Typography>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Box onClick={() => {
+                      setOpenTokensModal(true);
+                      setFieldToken(JSON.parse(result.explanation));
+                    }}>
+                      <Typography variant='body1' align='right'>{Number.parseFloat(result.score).toFixed(2)}</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={9}>
+                    <Box onClick={() => {
+                      setOpenTokensModal(true);
+                      setFieldToken(result.tokens['urls']);
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+                    }}>
+                      <Typography>{result.urls}</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={9}>
+                    <Box onClick={() => {
+                      setOpenTokensModal(true);
+                      setFieldToken(result.tokens['description']);
+                    }}>
+                      <Typography variant='caption'>
+                        {result.description ? result.description : null}
+                        {result.about ? result.about : null}
+                        {result.bio ? result.bio : null}
+                        {result.html ? result.html : null}
+                        {result.text ? result.text : null}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+                <hr />
+              </>
+            ))
+          }
+        </Box>
+      </Container>
     </main>
   )
 }

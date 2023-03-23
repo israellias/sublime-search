@@ -65,20 +65,14 @@ export default function Home() {
           {!data ? <p>No data...</p> : <></>}
           {!isLoading && data &&
             data.map((result: any) => (
-              <>
-                <Grid container m={2} spacing={2} key={result.uuid} >
+              <div key={result.uuid}>
+                <Grid container m={2} spacing={2}>
                   <Grid item xs={10}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-                      <Box onClick={() => {
-                        setOpenTokensModal(true);
-                        setFieldToken(result.tokens['name'])
-                      }}>
-                        <Typography variant='h6'>{result.name}</Typography>
-                      </Box>
-                      <Box mx={2}></Box>
-                      <Typography variant='caption'><Box sx={{ textTransform: 'lowercase' }}>
-                        {result.tagline}</Box></Typography>
-
+                    <Box onClick={() => {
+                      setOpenTokensModal(true);
+                      setFieldToken(result.tokens['name'])
+                    }}>
+                      <Typography variant='h6'>{result.name}</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={2}>
@@ -87,6 +81,24 @@ export default function Home() {
                       setFieldToken(JSON.parse(result.explanation));
                     }}>
                       <Typography variant='body1' align='right'>{Number.parseFloat(result.score).toFixed(2)}</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={9}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                      <Typography variant='caption'>
+                        <Box sx={{ textTransform: 'lowercase' }}>
+                          {result.tagline}
+                        </Box>
+                      </Typography>
+                      <Box mx={1}></Box>
+                      <Typography variant='caption'>by</Typography>
+                      <Box mx={1}></Box>
+                      <Box onClick={() => {
+                        setOpenTokensModal(true);
+                        setFieldToken(result.tokens['authors'])
+                      }}>
+                        <Typography variant='caption'>{result.authors.join(' ')}</Typography>
+                      </Box>
                     </Box>
                   </Grid>
                   <Grid item xs={9}>
@@ -103,18 +115,22 @@ export default function Home() {
                       setOpenTokensModal(true);
                       setFieldToken(result.tokens['description']);
                     }}>
-                      <Typography variant='caption'>
-                        {result.description ? result.description : null}
-                        {result.about ? result.about : null}
-                        {result.bio ? result.bio : null}
-                        {result.html ? result.html : null}
-                        {result.text ? result.text : null}
-                      </Typography>
+                      {
+                        result.embed.html ?
+                          <div className="embed-tweet" dangerouslySetInnerHTML={{ __html: result.embed.html }} /> :
+                          <Typography variant='body2'>
+                            {result.description ? result.description : null}
+                            {result.about ? result.about : null}
+                            {result.bio ? result.bio : null}
+                            {result.html ? result.html : null}
+                            {result.text ? result.text : null}
+                          </Typography>
+                      }
                     </Box>
                   </Grid>
                 </Grid>
                 <hr />
-              </>
+              </div>
             ))
           }
         </Box>

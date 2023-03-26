@@ -195,6 +195,11 @@ export default function Home() {
                           </Typography>
                         )}
                       </Box>
+                      <Typography variant="caption">
+                        {result.curated_by["first"] &&
+                          result.curated_by["first"]["name"]}{" "}
+                        (1st) and {result.curated_by["others"]} others connected
+                      </Typography>
                     </Grid>
                   </Grid>
                   <hr />

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 
 
 export enum EntityType {
+  MEMBER = "actor.member",
   COLLECTION = "collection.collection",
   ARTICLE = "curation.article",
   AUDIO = "curation.audio",

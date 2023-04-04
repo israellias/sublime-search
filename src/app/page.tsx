@@ -38,8 +38,11 @@ export default function Home() {
         .map((filter) => `entity_type=${filter}`)
         .join("&");
 
+      let url  = `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?${filterParams}`
+      if (searchTerm) url = url + `&search=${searchTerm}`
+
       fetch(
-        `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?search=${searchTerm}&${filterParams}`,
+        url,
         { signal }
       )
         .then((res) => res.json())

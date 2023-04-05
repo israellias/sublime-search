@@ -203,6 +203,10 @@ export default function Home() {
                           result.curated_by["first"]["name"]}{" "}
                         (1st) and {result.curated_by["others"]} others connected
                       </Typography>
+                      <br/>
+                      <Typography variant="caption">
+                          slug: {result.slug}
+                      </Typography>
                     </Grid>
                   </Grid>
                   <hr />

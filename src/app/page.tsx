@@ -181,7 +181,7 @@ export default function Home() {
                           setFieldToken(result.tokens["description"]);
                         }}
                       >
-                        {result.embed.html ? (
+                        {result.embed?.html ? (
                           <div
                             className="embed-tweet"
                             dangerouslySetInnerHTML={{

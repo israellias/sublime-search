@@ -2,12 +2,14 @@
 
 import {
   Box,
+  Button,
   Container,
   Dialog,
   DialogContent,
   DialogContentText,
   FormControl,
   Grid,
+  IconButton,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -18,6 +20,7 @@ import { Inter } from "next/font/google";
 import { useEffect, useState } from "react";
 import SearchFilters, { EntityType } from "./components/SearchFilters";
 import styles from "./page.module.css";
+import CloseIcon from "@mui/icons-material/Close";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
@@ -27,6 +30,8 @@ export default function Home() {
   const [openTokensModal, setOpenTokensModal] = useState(false);
   const [fieldToken, setFieldToken] = useState(null);
   const [filters, setFilters] = useState<EntityType[]>([]);
+  const [related, setRelated] = useState(null);
+  const [relatedName, setRelatedName] = useState(null);
 
   useEffect(() => {
     let controller = new AbortController();
@@ -38,13 +43,10 @@ export default function Home() {
         .map((filter) => `entity_type=${filter}`)
         .join("&");
 
-      let url  = `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?full_explanation&${filterParams}`
-      if (searchTerm) url = url + `&search=${searchTerm}`
+      let url = `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?full_explanation&${filterParams}`;
+      if (searchTerm) url = url + `&search=${searchTerm}`;
 
-      fetch(
-        url,
-        { signal }
-      )
+      fetch(url, { signal })
         .then((res) => res.json())
         .then((data) => {
           setData(data.results);
@@ -63,6 +65,22 @@ export default function Home() {
       };
     }
   }, [filters, searchTerm]);
+
+  useEffect(() => {
+    if (related) {
+      setLoading(true);
+      let url = `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/related/?entity=${related}`;
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          setData(data.results);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [related]);
 
   const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
@@ -90,6 +108,25 @@ export default function Home() {
               label="Amount"
             />
           </FormControl>
+        </Box>
+        <Box>
+          {relatedName ? (
+            <div>
+              <Typography variant="h5">
+                {`Related for ${relatedName}`}
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  setRelated(null);
+                  setRelatedName(null);
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </div>
+          ) : (
+            <></>
+          )}
         </Box>
         <Dialog
           open={openTokensModal}
@@ -164,6 +201,18 @@ export default function Home() {
                         </Box>
                       </Box>
                     </Grid>
+                    <Grid item xs={2}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          setRelatedName(result.name);
+                          setRelated(result.uuid);
+                        }}
+                      >
+                        See related
+                      </Button>
+                    </Grid>
                     <Grid item xs={9}>
                       <Box
                         onClick={() => {
@@ -203,9 +252,9 @@ export default function Home() {
                           result.curated_by["first"]["name"]}{" "}
                         (1st) and {result.curated_by["others"]} others connected
                       </Typography>
-                      <br/>
+                      <br />
                       <Typography variant="caption">
-                          slug: {result.slug}
+                        slug: {result.slug}
                       </Typography>
                     </Grid>
                   </Grid>

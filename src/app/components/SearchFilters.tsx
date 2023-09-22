@@ -21,6 +21,7 @@ export enum EntityType {
   TWEET = "curation.tweet",
   VIDEO = "curation.video",
   LINK = "curation.link",
+  FILE = "curation.file",
 }
 
 export interface SearchFiltersProps {

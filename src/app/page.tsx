@@ -44,7 +44,7 @@ export default function Home() {
         .join("&");
 
       let url = `${process.env.NEXT_PUBLIC_SUBLIME_HOST}/api/v2/feed/search/?full_explanation&${filterParams}`;
-      if (searchTerm) url = url + `&search=${searchTerm}`;
+      if (searchTerm) url = url + `&knn=${searchTerm}`;
 
       fetch(url, { signal })
         .then((res) => res.json())
@@ -165,6 +165,7 @@ export default function Home() {
                         }}
                       >
                         <Typography variant="h6">{result.name}</Typography>
+                        <Typography variant="caption">{result.slug}</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={2}>
